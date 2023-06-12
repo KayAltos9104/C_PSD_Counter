@@ -1,5 +1,7 @@
 import pygame
 from phys_aero import *
+from off_lattice_dlca import *
+from settings import * 
 
 test_colliders = {}
 id = 1
@@ -39,15 +41,16 @@ def main():
             for second in test_colliders:
                 if first == second:
                     continue
-                if Particle.is_intersects(test_colliders[first], test_colliders[second], canvas):
-                    test_colliders[first].color = (255, 0, 0)
+                #if Particle.is_intersects(test_colliders[first], test_colliders[second], canvas):
+                if Particle.is_intersects(test_colliders[first], test_colliders[second]):
+                    test_colliders[first].color = RED
 
         
 
         pygame.display.flip()
         # держим цикл на правильной скорости
         clock.tick(60)
-        pygame.time.delay(50)
+        # pygame.time.delay(50)
 
 def generate_particle(center_x, center_y):
     global id, test_colliders
