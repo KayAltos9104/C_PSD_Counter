@@ -8,8 +8,20 @@ id = 1
 
 def main():
     global id, test_colliders
+    '''
+    p1 = Particle (200, 200, 15)
+    p2 = Particle (400, 400, 25)
+    g = Globule (1)
+    print(g)
+    print(g.add_particle(p1))
+    print(g.add_particle(p2))
+    print(g.remove_particle(p1))
+    '''
 
-    
+    CA = CellularAutomata(Vector2 (1000, 650),15, 0.90)
+    CA.initialize()
+    print(CA.log)
+    CA.log = ''
 
     pygame.init()
     canvas = pygame.display.set_mode((1200, 720))
@@ -33,7 +45,11 @@ def main():
                 if event.button == 1:
                     generate_particle(x_pos, y_pos)
         
-        canvas.fill((255,255,255))
+        canvas.fill(BLACK)
+        pygame.draw.rect(canvas, WHITE, (0, 0, 1000, 650))
+        for g in CA.globules:
+            CA.globules[g].draw(canvas)
+        '''
         for p in test_colliders:
             test_colliders[p].draw(canvas)
 
@@ -44,7 +60,7 @@ def main():
                 #if Particle.is_intersects(test_colliders[first], test_colliders[second], canvas):
                 if Particle.is_intersects(test_colliders[first], test_colliders[second]):
                     test_colliders[first].color = RED
-
+        '''
         
 
         pygame.display.flip()
