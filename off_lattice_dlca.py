@@ -101,7 +101,7 @@ class CellularAutomata:
     def initialize(self):
         current_area = 0
         final_area = self.field_size.x * self.field_size.y * (1 -  self.porosity)
-        self.log += f'Final are: {final_area}\n'
+        self.log += f'Final area: {final_area}\n'
         while current_area < final_area:
             self.log += f'Current area: {current_area}/{final_area}\n'            
             is_taken = True
@@ -120,12 +120,13 @@ class CellularAutomata:
             current_area += globule.get_area()
             self.__id += 1
 
-    def move_all_globules(self):
-        globules_for_removing = []
-        #globules_stopped = []
-        for g in self.globules:  
-            #if g in globules_stopped:
-            #    continue          
+    def update_ca(self):
+        if len(self.globules) == 1:
+            self.log += 'Structure created'
+            return
+        
+        globules_for_removing = []       
+        for g in self.globules: 
             direction = Vector2(random.random()*1.42 - 0.71, random.random()*1.42 - 0.71)
             direction = Vector2.mult_on_scalar(self.globules[g].speed, direction)
             for step in range (self.steps, 0, -1): 
@@ -142,17 +143,15 @@ class CellularAutomata:
                 if is_aggregated:
                     #self.globules[g].set_color(RED)
                     #self.globules[agr_id].set_color(RED)
-                    self.globules[g].gradient_color((20, -20, 0))
-                    self.globules[agr_id].gradient_color((20, -20, 0)) 
+                    self.globules[g].gradient_color((5, -5, 0))
+                    self.globules[agr_id].gradient_color((5, -5, 0)) 
                     #self.globules[g].move(-direction)
                     self.aggregate(from_globule=self.globules[g], to_globule=self.globules[agr_id])  
-                    globules_for_removing.append(g)
-                    #globules_stopped.append(agr_id)
+                    globules_for_removing.append(g)                  
                     break
-                #self.log += log + '\n'
+                self.log += log + '\n'
 
-        for id in globules_for_removing:
-            #print(globules_for_removing)
+        for id in globules_for_removing:            
             del self.globules[id]
 
                 
@@ -160,14 +159,13 @@ class CellularAutomata:
     def aggregate (self, from_globule : Globule, to_globule : Globule):
         for p in from_globule.particles:
             self.log += to_globule.add_particle(p) + '\n'
-            p.color = BLUE            
+            #p.color = BLUE            
         from_globule.particles.clear()      
 
     def is_collided (self, globule: Globule) -> tuple ((bool, int, str)):
         for g in self.globules:
             if g == globule.id:
                 continue
-            #for (p1, p2) in zip(globule.particles, self.globules[g].particles):
             for p1 in globule.particles:
                 for p2 in self.globules[g].particles:
                     if CircleCollider.is_intersects(p1, p2):

@@ -20,7 +20,7 @@ def main():
     '''
     
 
-    CA = CellularAutomata(Vector2 (1000, 650), 15, 0.90)
+    CA = CellularAutomata(Vector2 (1000, 650), 10, 0.90)
     CA.initialize()
     print(CA.log)
     CA.log = ''
@@ -48,9 +48,9 @@ def main():
                 if event.button == 1:
                     generate_particle(x_pos, y_pos)
         
-        CA.move_all_globules()
-        print(CA.log)
-        CA.log = ''
+        CA.update_ca()
+        #print(CA.log)
+        #CA.log = ''
 
 
         canvas.fill(BLACK)
@@ -75,9 +75,9 @@ def main():
         pygame.display.flip()
         # держим цикл на правильной скорости
         clock.tick(60)
-        pygame.time.delay(100)
+        #pygame.time.delay(100)
         end_time = time.time()
-        print(end_time - start_time)
+        #print(end_time - start_time)
         
 
 def generate_particle(center_x, center_y):
