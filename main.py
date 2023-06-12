@@ -1,4 +1,5 @@
 import pygame
+import time
 from phys_aero import *
 from off_lattice_dlca import *
 from settings import * 
@@ -17,18 +18,20 @@ def main():
     print(g.add_particle(p2))
     print(g.remove_particle(p1))
     '''
+    
 
-    CA = CellularAutomata(Vector2 (1000, 650), 10, 0.98)
+    CA = CellularAutomata(Vector2 (1000, 650), 15, 0.90)
     CA.initialize()
     print(CA.log)
     CA.log = ''
 
     pygame.init()
-    canvas = pygame.display.set_mode((1200, 720))
+    canvas = pygame.display.set_mode((1400, 800))
     pygame.display.set_caption("Modern DLCA")
     clock = pygame.time.Clock()
     is_running = True
     while is_running:
+        start_time = time.time()
         for event in pygame.event.get():
             # проверить закрытие окна
             if event.type == pygame.QUIT:
@@ -51,7 +54,7 @@ def main():
 
 
         canvas.fill(BLACK)
-        pygame.draw.rect(canvas, WHITE, (0, 0, 1000, 650))
+        pygame.draw.rect(canvas, WHITE, (OFFSET, OFFSET, 1000, 650))
 
         for g in CA.globules:
             CA.globules[g].draw(canvas)
@@ -72,7 +75,10 @@ def main():
         pygame.display.flip()
         # держим цикл на правильной скорости
         clock.tick(60)
-        #pygame.time.delay(100)
+        pygame.time.delay(100)
+        end_time = time.time()
+        print(end_time - start_time)
+        
 
 def generate_particle(center_x, center_y):
     global id, test_colliders

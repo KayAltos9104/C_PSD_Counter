@@ -19,7 +19,8 @@ class Particle (CircleCollider):
         return f'Particle at pos {self.center}'
 
     def draw(self, canvas):
-        pygame.draw.circle(canvas, self.color, center=(self.center.x, self.center.y), radius=self.radius)
+        pygame.draw.circle(canvas, self.color, center=(self.center.x + OFFSET, self.center.y + OFFSET), radius=self.radius)
+        pygame.draw.circle(canvas, BLACK, center=(self.center.x + OFFSET, self.center.y + OFFSET), radius=self.radius, width=2)
     
     '''@staticmethod
     def is_intersects(c1, c2, canvas):
@@ -64,14 +65,13 @@ class Globule:
                 g = 255
             elif g < 0:
                 g = 0
+
             b += color[2]
             if b > 255:
                 b = 255
             elif b < 0:
                 b = 0
             p.color = (r, g, b)
-            
-            
            
                
 
@@ -107,8 +107,8 @@ class CellularAutomata:
             is_taken = True
             globule = Globule(self.__id)
             while is_taken:                
-                # place_pos = Vector2(random.random()*(self.field_size.x-self.particle_radius), random.random()*(self.field_size.y-self.particle_radius))
-                place_pos = Vector2(random.random()*(self.field_size.x-400)+200, random.random()*(self.field_size.y-200)+100)
+                place_pos = Vector2(random.random()*(self.field_size.x-self.particle_radius), random.random()*(self.field_size.y-self.particle_radius))
+                # place_pos = Vector2(random.random()*(self.field_size.x-400)+200, random.random()*(self.field_size.y-200)+100)
                 particle = Particle(place_pos.x, place_pos.y, self.particle_radius)
                 globule.add_particle(particle)
                 is_taken, agr_id, log = self.is_collided(globule)                
@@ -121,30 +121,57 @@ class CellularAutomata:
             self.__id += 1
 
     def move_all_globules(self):
-        for g in self.globules:
+        globules_for_removing = []
+        #globules_stopped = []
+        for g in self.globules:  
+            #if g in globules_stopped:
+            #    continue          
             direction = Vector2(random.random()*1.42 - 0.71, random.random()*1.42 - 0.71)
             direction = Vector2.mult_on_scalar(self.globules[g].speed, direction)
-            for step in range (self.steps, 0, -1):                 
+            for step in range (self.steps, 0, -1): 
                 self.globules[g].move(direction)
+                is_crossed_border = False
+                for p in self.globules[g].particles:
+                    if p.center.x > self.field_size.x or p.center.x < 0 or p.center.y > self.field_size.y or p.center.y < 0:
+                        is_crossed_border = True
+                        break
+                if is_crossed_border: 
+                    self.globules[g].move(-direction)
+
                 is_aggregated, agr_id, log = self.is_collided(self.globules[g])
                 if is_aggregated:
                     #self.globules[g].set_color(RED)
                     #self.globules[agr_id].set_color(RED)
-                    self.globules[g].gradient_color((1, -1, 0))
-                    self.globules[agr_id].gradient_color((1, -1, 0))                    
-                    step = 0
-                self.log += log + '\n'
+                    self.globules[g].gradient_color((20, -20, 0))
+                    self.globules[agr_id].gradient_color((20, -20, 0)) 
+                    #self.globules[g].move(-direction)
+                    self.aggregate(from_globule=self.globules[g], to_globule=self.globules[agr_id])  
+                    globules_for_removing.append(g)
+                    #globules_stopped.append(agr_id)
+                    break
+                #self.log += log + '\n'
 
+        for id in globules_for_removing:
+            #print(globules_for_removing)
+            del self.globules[id]
+
+                
             
-            
-    
+    def aggregate (self, from_globule : Globule, to_globule : Globule):
+        for p in from_globule.particles:
+            self.log += to_globule.add_particle(p) + '\n'
+            p.color = BLUE            
+        from_globule.particles.clear()      
+
     def is_collided (self, globule: Globule) -> tuple ((bool, int, str)):
         for g in self.globules:
             if g == globule.id:
                 continue
-            for (p1, p2) in zip(globule.particles, self.globules[g].particles):
-                if CircleCollider.is_intersects(p1, p2):
-                    return True, g, f'{globule} collides with {self.globules[g]}. Collided: {p1} и {p2}'
+            #for (p1, p2) in zip(globule.particles, self.globules[g].particles):
+            for p1 in globule.particles:
+                for p2 in self.globules[g].particles:
+                    if CircleCollider.is_intersects(p1, p2):
+                        return True, g, f'{globule} collides with {self.globules[g]}. Collided: {p1} и {p2}'
 
         return False, -1, f"{globule} doesn't collides"
 
