@@ -31,6 +31,7 @@ class Globule:
     def __init__(self, id: int):
         self.particles = []
         self.id = id
+        self.speed = 2
     
     def add_particle(self, particle: Particle) -> str:
         self.particles.append(particle)
@@ -40,6 +41,14 @@ class Globule:
         self.particles.remove(particle)
         return f'From {self} was removed {particle}'
     
+    def move (self, motion):
+        for p in self.particles:
+            p.move(motion)
+
+    def set_color(self, color):
+        for p in self.particles:
+            p.color = color
+
     def draw(self, canvas: pygame.Surface) -> None:
         for p in self.particles:
             p.draw(canvas)
@@ -61,6 +70,7 @@ class CellularAutomata:
         self.particle_radius = particle_radius
         self.porosity = porosity
         self.log = ''
+        self.steps = 10
 
     def initialize(self):
         current_area = 0
@@ -82,8 +92,20 @@ class CellularAutomata:
             self.globules[self.__id] = globule
             current_area += globule.get_area()
             self.__id += 1
-            # print(self.log)
-            # self.log = ''
+
+    def move_all_globules(self):
+        for g in self.globules:
+            direction = Vector2(random.random()*1.42 - 0.71, random.random()*1.42 - 0.71)
+            direction = Vector2.mult_on_scalar(self.globules[g].speed, direction)
+            for step in range (self.steps, 0, -1):                 
+                self.globules[g].move(direction)
+                is_aggregated, agr_id, log = self.is_collided(self.globules[g])
+                if is_aggregated:
+                    self.globules[g].set_color(RED)
+                    self.globules[agr_id].set_color(RED)                    
+                    step = 0
+                self.log += log + '\n'
+
             
             
     
