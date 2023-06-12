@@ -20,7 +20,7 @@ def main():
     '''
     
 
-    CA = CellularAutomata(Vector2 (1000, 650), 10, 0.90)
+    CA = CellularAutomata(Vector2 (1000, 650), 7, 0.85)
     CA.initialize()
     print(CA.log)
     CA.log = ''
@@ -75,7 +75,7 @@ def main():
         pygame.display.flip()
         # держим цикл на правильной скорости
         clock.tick(60)
-        #pygame.time.delay(100)
+        pygame.time.delay(50)
         end_time = time.time()
         #print(end_time - start_time)
         

@@ -32,7 +32,7 @@ class Globule:
     def __init__(self, id: int):
         self.particles = []
         self.id = id
-        self.speed = 2
+        self.speed = 5
     
     def add_particle(self, particle: Particle) -> str:
         self.particles.append(particle)
@@ -97,6 +97,7 @@ class CellularAutomata:
         self.porosity = porosity
         self.log = ''
         self.steps = 10
+        self.speed_mod = 0
 
     def initialize(self):
         current_area = 0
@@ -119,6 +120,7 @@ class CellularAutomata:
             self.globules[self.__id] = globule
             current_area += globule.get_area()
             self.__id += 1
+        #self.speed_mod = 200 / len(self.globules)
 
     def update_ca(self):
         if len(self.globules) == 1:
@@ -127,8 +129,8 @@ class CellularAutomata:
         
         globules_for_removing = []       
         for g in self.globules: 
-            direction = Vector2(random.random()*1.42 - 0.71, random.random()*1.42 - 0.71)
-            direction = Vector2.mult_on_scalar(self.globules[g].speed, direction)
+            single_dir = Vector2(random.random()*1.42 - 0.71, random.random()*1.42 - 0.71)
+            direction = Vector2.mult_on_scalar(self.globules[g].speed, single_dir)
             for step in range (self.steps, 0, -1): 
                 self.globules[g].move(direction)
                 is_crossed_border = False
@@ -143,9 +145,9 @@ class CellularAutomata:
                 if is_aggregated:
                     #self.globules[g].set_color(RED)
                     #self.globules[agr_id].set_color(RED)
-                    self.globules[g].gradient_color((5, -5, 0))
-                    self.globules[agr_id].gradient_color((5, -5, 0)) 
-                    #self.globules[g].move(-direction)
+                    self.globules[g].gradient_color((7, -7, 0))
+                    self.globules[agr_id].gradient_color((7, -7, 0)) 
+                    #self.globules[g].move(-single_dir)                    
                     self.aggregate(from_globule=self.globules[g], to_globule=self.globules[agr_id])  
                     globules_for_removing.append(g)                  
                     break
@@ -159,7 +161,11 @@ class CellularAutomata:
     def aggregate (self, from_globule : Globule, to_globule : Globule):
         for p in from_globule.particles:
             self.log += to_globule.add_particle(p) + '\n'
-            #p.color = BLUE            
+            #p.color = BLUE  
+        #to_globule.speed = to_globule.speed / len(to_globule.particles)   
+        #to_globule.speed = to_globule.speed - self.speed_mod   
+        #to_globule.speed = min(to_globule.speed, from_globule.speed)
+        #to_globule.speed = to_globule.speed - len(to_globule.particles)*0.1  
         from_globule.particles.clear()      
 
     def is_collided (self, globule: Globule) -> tuple ((bool, int, str)):
