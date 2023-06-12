@@ -49,6 +49,32 @@ class Globule:
         for p in self.particles:
             p.color = color
 
+    def gradient_color(self, color):
+        for p in self.particles:
+            r, g, b = p.color
+            
+            r += color[0]
+            if r > 255:
+                r = 255
+            elif r < 0:
+                r = 0
+
+            g += color[1]
+            if g > 255:
+                g = 255
+            elif g < 0:
+                g = 0
+            b += color[2]
+            if b > 255:
+                b = 255
+            elif b < 0:
+                b = 0
+            p.color = (r, g, b)
+            
+            
+           
+               
+
     def draw(self, canvas: pygame.Surface) -> None:
         for p in self.particles:
             p.draw(canvas)
@@ -81,7 +107,8 @@ class CellularAutomata:
             is_taken = True
             globule = Globule(self.__id)
             while is_taken:                
-                place_pos = Vector2(random.random()*(self.field_size.x-self.particle_radius), random.random()*(self.field_size.y-self.particle_radius))
+                # place_pos = Vector2(random.random()*(self.field_size.x-self.particle_radius), random.random()*(self.field_size.y-self.particle_radius))
+                place_pos = Vector2(random.random()*(self.field_size.x-400)+200, random.random()*(self.field_size.y-200)+100)
                 particle = Particle(place_pos.x, place_pos.y, self.particle_radius)
                 globule.add_particle(particle)
                 is_taken, agr_id, log = self.is_collided(globule)                
@@ -101,8 +128,10 @@ class CellularAutomata:
                 self.globules[g].move(direction)
                 is_aggregated, agr_id, log = self.is_collided(self.globules[g])
                 if is_aggregated:
-                    self.globules[g].set_color(RED)
-                    self.globules[agr_id].set_color(RED)                    
+                    #self.globules[g].set_color(RED)
+                    #self.globules[agr_id].set_color(RED)
+                    self.globules[g].gradient_color((1, -1, 0))
+                    self.globules[agr_id].gradient_color((1, -1, 0))                    
                     step = 0
                 self.log += log + '\n'
 
